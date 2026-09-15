@@ -1,0 +1,8 @@
+[
+  {
+    "id": "1",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "imageUrl": "http://127.0.0.1:8000/static/locations/paris.jpg"
+  }
+]

@@ -1,0 +1,24 @@
+.phase0 {
+  max-width: 40rem;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.phase0 h1 {
+  margin: 0.25rem 0 1rem;
+}
+
+.phase0 ul {
+  padding-left: 1.2rem;
+}
+
+.phase0 code {
+  font-size: 0.9em;
+}

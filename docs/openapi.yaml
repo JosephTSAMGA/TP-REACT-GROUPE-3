@@ -1,0 +1,176 @@
+openapi: 3.1.0
+info:
+  title: GeoGuessr TP — API
+  version: 0.1.0
+  description: |
+    Contrat figé en Phase 0. Les coordonnées réelles ne sont jamais
+    renvoyées avant un guess. L’API est stateless au niveau de la partie :
+    chaque round est isolé ; le frontend orchestre 5 manches.
+servers:
+  - url: http://127.0.0.1:8000
+    description: Développement local
+
+paths:
+  /health:
+    get:
+      summary: Santé du serveur
+      operationId: getHealth
+      tags: [infra]
+      responses:
+        "200":
+          description: Le backend tourne
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/round:
+    get:
+      summary: Créer une manche
+      operationId: getRound
+      tags: [game]
+      responses:
+        "200":
+          description: Manche créée (sans coordonnées)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoundResponse"
+              example:
+                roundId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                imageUrl: http://127.0.0.1:8000/static/locations/paris.jpg
+                locationId: "1"
+
+  /api/round/{roundId}/guess:
+    post:
+      summary: Soumettre un guess
+      operationId: postGuess
+      tags: [game]
+      parameters:
+        - name: roundId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GuessRequest"
+            example:
+              latitude: 43.6045
+              longitude: 1.444
+      responses:
+        "200":
+          description: Distance et score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuessResponse"
+              example:
+                distanceKm: 12.4
+                score: 4969
+                actualLocation:
+                  locationId: "1"
+                  latitude: 48.8566
+                  longitude: 2.3522
+        "404":
+          description: Round inconnu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+              example:
+                detail: Round not found
+        "409":
+          description: Guess déjà soumis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+              example:
+                detail: Guess already submitted
+        "422":
+          description: Body invalide (latitude / longitude manquantes ou hors bornes)
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+
+    RoundResponse:
+      type: object
+      additionalProperties: false
+      required: [roundId, imageUrl, locationId]
+      properties:
+        roundId:
+          type: string
+          format: uuid
+        imageUrl:
+          type: string
+          format: uri
+          description: >
+            URL de la photo, servie par ce backend
+            (ex. http://127.0.0.1:8000/static/locations/paris.jpg).
+            Jamais accompagnée de lat/lng.
+        locationId:
+          type: string
+          description: Identifiant de la location. Jamais accompagné de lat/lng ici.
+
+    GuessRequest:
+      type: object
+      additionalProperties: false
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+
+    ActualLocation:
+      type: object
+      additionalProperties: false
+      required: [locationId, latitude, longitude]
+      properties:
+        locationId:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+      description: Uniquement après un guess valide.
+
+    GuessResponse:
+      type: object
+      additionalProperties: false
+      required: [distanceKm, score, actualLocation]
+      properties:
+        distanceKm:
+          type: number
+          minimum: 0
+          description: Haversine en km, 1 décimale
+        score:
+          type: integer
+          minimum: 0
+          maximum: 5000
+        actualLocation:
+          $ref: "#/components/schemas/ActualLocation"
+
+    ErrorDetail:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
