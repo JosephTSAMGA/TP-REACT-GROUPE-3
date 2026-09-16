@@ -12,12 +12,12 @@
 .start-screen__eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 1.5rem;
+  color: #0f766e; /* teal foncé */
 }
 
 .start-screen__rules {
-  color: #444;
+  color: #1e3a5f;
   line-height: 1.5;
 }
 
@@ -29,16 +29,17 @@
 
 .start-screen__mode button {
   padding: 0.4rem 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #38bdf8; /* bleu ciel */
   border-radius: 999px;
-  background: #fff;
+  background: #0f766e;
+  color: #fff;
   cursor: pointer;
 }
 
 .start-screen__mode button.is-selected {
-  background: #222;
+  background: linear-gradient(135deg, #10b981, #2563eb); /* degrade vert bleu */
   color: #fff;
-  border-color: #222;
+  border-color: transparent;
 }
 
 .start-screen__play {
@@ -48,11 +49,11 @@
   font-weight: 600;
   border: none;
   border-radius: 0.5rem;
-  background: #2563eb;
+  background: linear-gradient(135deg, #059669, #2563eb);
   color: #fff;
   cursor: pointer;
 }
 
 .start-screen__play:hover {
-  background: #1d4ed8;
+  background: linear-gradient(135deg, #047857, #1d4ed8);
 }
