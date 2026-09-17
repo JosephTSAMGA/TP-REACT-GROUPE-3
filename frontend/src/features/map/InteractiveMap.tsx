@@ -15,10 +15,10 @@ type Coordinates = {
   lng: number;
 };
 
-// Correction de l'icône du marker avec Vite
 const markerIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
 
@@ -27,7 +27,7 @@ function ClickMarker() {
 
   useMapEvents({
     click(event) {
-      const coordinates = {
+      const coordinates: Coordinates = {
         lat: event.latlng.lat,
         lng: event.latlng.lng,
       };
@@ -46,9 +46,9 @@ function ClickMarker() {
   return (
     <Marker position={[position.lat, position.lng]} icon={markerIcon}>
       <Popup>
-        Latitude : {position.lat}
+        Latitude : {position.lat.toFixed(5)}
         <br />
-        Longitude : {position.lng}
+        Longitude : {position.lng.toFixed(5)}
       </Popup>
     </Marker>
   );
@@ -57,11 +57,12 @@ function ClickMarker() {
 export default function InteractiveMap() {
   return (
     <div>
-      <h1>Carte interactive</h1>
+      <h2>Choisis un emplacement</h2>
 
       <MapContainer
         center={[48.8566, 2.3522]}
-        zoom={12}
+        zoom={5}
+        scrollWheelZoom={true}
         style={{
           height: "500px",
           width: "100%",
