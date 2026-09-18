@@ -1,16 +1,7 @@
-# Feature `game` — Personne 1
+# Feature `game` — P1
 
-Écran de manche : **photo** + **carte P2** + timer + score + bouton Guess.
+Start, timer, 5 manches, score total, bouton Guess.
 
-```
-Photo (imageUrl du GET /round)
-Carte (composant features/map)
-Timer | Score | [ GUESS ]
-```
+Tu importes `features/map` (P2). Tu n’implémentes pas Leaflet.
 
-- Timer **UI seulement** (pas d’expire côté API).
-- Guess envoie les lat/lng fournis par P2, via `shared/api`.
-- Mocks tant que `VITE_USE_MOCKS` n’est pas `false`.
-- 5 manches et score total = React, pas l’API.
-
-Tu n’implémentes ni Leaflet ni le scoring.
+Photo : `round.imageUrl` (fichiers P4). API : `shared/api` (P3).

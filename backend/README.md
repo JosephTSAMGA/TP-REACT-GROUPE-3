@@ -7,6 +7,4 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-`GET /health` est le seul endpoint implémenté. Les routes de jeu suivent `docs/openapi.yaml`.
-
-Images (P4) : `app/data/images/`, à servir plus tard en `/static/locations/` (P3). Voir `docs/CONSIGNES.md`.
+`GET /health` est le seul endpoint implémenté. Routes de jeu : P3 (`docs/openapi.yaml`). Scoring : P2. Schémas : P1. Data : P4. Tests : P5. Voir `docs/CONSIGNES.md`.

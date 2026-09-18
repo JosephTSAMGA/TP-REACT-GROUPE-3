@@ -1,4 +1,4 @@
-"""Distance (Haversine) et score. Implémentation : personne 3. Tests : personne 5.
+"""Distance (Haversine) et score. Implémentation : P2. Tests : P5.
 
 score = max(0, round(5000 * exp(-distance_km / 2000)))
 distance_km arrondie à 1 décimale.

@@ -1,90 +1,57 @@
 # Architecture — TP React Groupe 3
 
-Décisions de **Phase 0**. Ce document est la référence du groupe. Les features de jeu ne sont pas implémentées ici.
+Une app GeoGuessr-like. **Même 5 personnes** sur le front et le back (un dossier chacun). Contrat : [api.md](./api.md). Papier : [CONSIGNES.md](./CONSIGNES.md).
 
-## Combo retenu
+## Combo
 
 | Sujet | Choix | Écarté |
 |---|---|---|
 | Dépôt | Monorepo `frontend/` + `backend/` + `docs/` | Deux repos |
-| Frontend | Features `game` / `map` / `result` | Feature-Sliced Design, Redux |
-| Backend | FastAPI plat (routers + services) | Architecture hexagonale |
-| État de partie | API **stateless** (un round isolé) ; 5 manches côté React | Session serveur dès le MVP |
-| Intégration | Contrat OpenAPI figé + mocks | Coder sans contrat |
-| Carte | Leaflet + OpenStreetMap via react-leaflet | Carte maison, Google Maps, Mapbox |
-| Photos | Fichiers dans `backend/app/data/images/` | Street View, API externe, `frontend/public` |
-
-## Contraintes respectées
-
-- Personne 1 (UI jeu) et personne 2 (carte) avancent avec des **mocks**, sans attendre le backend.
-- Personne 3 (FastAPI) et personne 4 (données) avancent **sans le frontend**.
-- Personne 5 écrit des tests dès que le contrat JSON est figé.
-- Flux MVP : `START → ROUND → GUESS → RESULT → NEXT ROUND` (puis 5 manches).
-- La carte n’est **pas** dessinée : Leaflet + tuiles OSM. Les photos sont des fichiers backend.
-
-Papier opérationnel pour le groupe : [CONSIGNES.md](./CONSIGNES.md).
+| Front | Features `game` / `map` + `shared/api` | FSD, Redux |
+| Back | 5 fichiers/dossiers, une seule API | Hexagonale, 5 APIs |
+| Partie | API stateless ; 5 manches côté React | `POST /games` au MVP |
+| Carte | Leaflet + OSM | Carte maison, Google, Mapbox |
+| Photos | `backend/app/data/images/` | Street View, `frontend/public` |
 
 ```mermaid
 flowchart LR
-  Photo[Image_statique] --> ReactUI[React_TS]
-  ReactUI -->|"clic Leaflet lat lng"| Guess[POST_guess]
-  Guess --> FastAPI[FastAPI]
-  FastAPI --> Locations[locations_json]
-  FastAPI --> Images[data_images]
-  ReactUI -.->|"mocks Phase 1"| MockAPI[JSON_mock]
+  Photo[imageUrl] --> Game[P1_GameScreen]
+  Map[P2_Leaflet] --> Game
+  Game -->|"POST guess"| API[P3_FastAPI]
+  API --> Scoring[P2_scoring]
+  API --> Data[P4_locations]
+  P5[P5_tests_integration] --> Game
+  P5 --> API
 ```
 
-## Organisation du dépôt
-
-```
-TP-REACT-GROUPE-3/
-  frontend/          # Vite + React + TypeScript
-  backend/           # FastAPI
-  docs/              # contrat API + architecture
-  .github/workflows/ # CI
-```
-
-Un seul GitHub : un clone, des PRs visibles par tout le monde, un contrat unique.
-
-## Frontend — par fonctionnalités
+## Front
 
 ```
 frontend/src/
-  app/               # router, layout, providers
-  features/
-    game/            # écran manche, timer, score, transitions  → Personne 1
-    map/             # Leaflet + OSM, marker, lat/lng          → Personne 2
-    result/          # distance + score après guess
-  shared/            # client API, types, UI générique, mocks
+  app/                      # P5 — coller le tout
+  features/game/            # P1 — start, timer, 5 rounds, score, Guess
+  features/map/             # P2 — Leaflet, clic, markers
+  features/result/          # P1 — distance + score après guess
+  shared/api/               # P3 — getRound / postGuess + mocks
 ```
 
-État de partie (MVP) : `useState` / Context dans `features/game`. Pas de Redux.
+5 manches + score total = React. Pas de Redux.
 
-Les 5 rounds, le score total et le « play again » vivent **côté React**. L’API ne connaît qu’une manche à la fois.
-
-## Backend — routers + services
+## Back
 
 ```
-backend/
-  app/main.py
-  app/routers/rounds.py
-  app/services/scoring.py      # distance + score → Personne 3
-  app/services/game.py         # création de round
-  app/data/locations.json      # métadonnées → Personne 4
-  app/data/images/             # jpg servies en /static/locations/ → P4 + P3
-  tests/
+backend/app/
+  schemas.py                # P1 — Pydantic = JSON du contrat
+  services/scoring.py       # P2 — Haversine + score
+  services/game.py          # P3 — roundId en mémoire
+  routers/rounds.py         # P3 — GET /api/round, POST .../guess
+  data/locations.json       # P4
+  data/images/              # P4 — servies en /static/locations/
+tests/                      # P5
 ```
 
-Le serveur mémorise uniquement `roundId → coordonnées réelles` le temps du guess (mémoire process). Il ne stocke pas de partie (`game`) ni de score total.
-
-Les images ne quittent pas le backend : FastAPI les sert via `/static/locations/<fichier>.jpg`. Le champ `imageUrl` du contrat pointe vers cette URL. Pas d’images dans `frontend/public`.
-
-## Contrat API
-
-Source de vérité : [openapi.yaml](./openapi.yaml) (lisible : [api.md](./api.md)).
-
-Règle d’or : **ne jamais renvoyer latitude / longitude avant le guess**.
+Une API seulement. **Jamais** lat/lng dans le GET.
 
 ## Branches
 
-Voir [CONTRIBUTING.md](../CONTRIBUTING.md).
+`main` → `dev` → `P1` … `P5`. Voir [CONTRIBUTING.md](../CONTRIBUTING.md).

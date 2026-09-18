@@ -1,20 +1,9 @@
-# Feature `map` — Personne 2
+# Feature `map` — P2
 
-**Outil :** Leaflet + tuiles OpenStreetMap, via `react-leaflet`.  
-**Interdit :** carte dessinée à la main, Google Maps, Mapbox.
+Leaflet + OSM. Clic → `{ latitude, longitude }`. Marker. Attribution OSM.
 
-## MVP (sans backend)
+Composant **utilisé par** GameScreen (P1). Pas de 2ᵉ point d’entrée `main.tsx`.
 
-1. Afficher le monde.
-2. Clic → `{ latitude, longitude }`.
-3. Marker sur le clic.
-4. `console.log` des coords.
-5. Attribution OSM visible.
+Après le guess : 2ᵉ marker avec `actualLocation` (P1 te le passe).
 
-Tu ne calcules pas le score. Tu transmets les coords à P1.
-
-## Après le guess
-
-P1 te passe `actualLocation` (`latitude`, `longitude`). Tu ajoutes un **deuxième** marker (point réel).
-
-Packages à installer **quand tu coderas** (pas encore fait) : `leaflet`, `react-leaflet`, et les types Leaflet.
+Back P2 : `backend/app/services/scoring.py`.

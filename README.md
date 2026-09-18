@@ -39,16 +39,16 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 Santé : [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)  
 Docs générées : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Les routes de jeu (`GET /api/round`, `POST /api/round/{id}/guess`) sont spécifiées dans le contrat mais **pas encore implémentées** (personne 3).
+Les routes de jeu sont dans le contrat, **pas encore implémentées**. Qui fait quoi : [docs/CONSIGNES.md](docs/CONSIGNES.md).
 
-## Qui fait quoi
+## Qui fait quoi (résumé)
 
-| Personne | Zone |
-|---|---|
-| 1 — Frontend Game | `frontend/src/features/game` |
-| 2 — Frontend Map | Leaflet + OSM dans `frontend/src/features/map` |
-| 3 — Backend Game | routes + scoring + `/static/locations/` |
-| 4 — Backend Data | `locations.json` + `backend/app/data/images/` |
-| 5 — Qualité | `backend/tests`, CI, mocks, intégration |
+| | Front | Back |
+|---|---|---|
+| P1 | `features/game` | `schemas.py` |
+| P2 | `features/map` (Leaflet) | `scoring.py` |
+| P3 | `shared/api` | routes + `game.py` + `/static` |
+| P4 | `<img imageUrl>` | `data/` json + images |
+| P5 | coller P1+P2, CI | tests |
 
 Branches : [CONTRIBUTING.md](CONTRIBUTING.md).

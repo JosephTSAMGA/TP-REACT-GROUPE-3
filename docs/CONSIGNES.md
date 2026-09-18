@@ -1,159 +1,81 @@
-# Consignes — papier pour tout le monde
+# Consignes groupe
 
-Rien à inventer. Pas de carte maison. Pas d’API Google. Pas de Street View.
-
-## Le jeu, en une phrase
-
-Le joueur **voit une photo** → **clique sur le monde** → **valide** → **reçoit un score**.
+Une app. Un contrat API. **Cinq personnes, front + back.**
 
 ```
-Photo (P4, servie par P3)
-        +
-Carte Leaflet / OpenStreetMap (P2)
-        ↓
-clic → { latitude, longitude }
-        ↓
-POST /api/round/{roundId}/guess  (P3)
-        ↓
-distance + score + point réel
-        ↓
-affichage (P1)
+Photo → carte Leaflet → clic {latitude, longitude} → POST /guess → score
 ```
 
-## Carte = Leaflet + OpenStreetMap
-
-- **Leaflet** affiche la carte et donne lat/lng au clic.
-- **OpenStreetMap** fournit les tuiles (le fond de carte).
-- **react-leaflet** branche ça dans React.
-
-Personne 2 n’a **aucune** carte à dessiner.
-
-## Photos = fichiers dans le backend
-
-Les images vivent **uniquement** ici :
-
-```
-backend/app/data/images/
-  paris.jpg
-  toulouse.jpg
-  tokyo.jpg
-  ...
-```
-
-Le backend les expose en statique :
-
-```
-http://127.0.0.1:8000/static/locations/paris.jpg
-```
-
-Le frontend affiche `imageUrl` dans une balise `<img>`. Rien d’autre.
-
-## Contrat API : inchangé
-
-Mêmes champs qu’aujourd’hui. Voir [api.md](./api.md).
-
-**Avant le guess, jamais de latitude / longitude.**  
-Ne pas renvoyer `"location": "toulouse"` non plus : ça spoile.
-
-| Quand | JSON |
-|---|---|
-| `GET /api/round` | `{ roundId, imageUrl, locationId }` |
-| `POST /api/round/{id}/guess` | body `{ latitude, longitude }` → `{ distanceKm, score, actualLocation }` |
-
-`imageUrl` est une URL vers **notre** backend, pas vers example.com.
+Détail API : [api.md](./api.md)  
+Git : [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ---
 
-## Personne 1 — écran de jeu
-
-Dossier : `frontend/src/features/game`
-
-Tu montes l’écran, tu n’implémentes ni la carte ni l’API.
+## Git (tout le monde)
 
 ```
-┌─────────────────────────────────────┐
-│  Photo (imageUrl)                   │
-├─────────────────────────────────────┤
-│  Carte Leaflet   (composant P2)     │
-│                      📍 clic        │
-├─────────────────────────────────────┤
-│  Timer    Score    [ GUESS ]        │
-└─────────────────────────────────────┘
+git fetch
+git checkout P1    # ou P2 P3 P4 P5 — TA branche
 ```
 
-- Timer côté UI seulement.
-- Bouton Guess : envoie les coords que P2 t’a données, via `shared/api`.
-- Tant que le backend n’est pas prêt : mocks (`VITE_USE_MOCKS=true`).
-- 5 manches + score total = **toi** (React). L’API ne gère qu’une manche.
+On merge vers `dev`, puis `dev` → `main`.  
+Tu as besoin d’une branche en plus ? Tu la crées depuis la tienne.
 
-## Personne 2 — carte
+**Pas de zip sur GitHub.** Pas de commit sur `main` direct.
 
-Dossier : `frontend/src/features/map`
+---
 
-Packages (quand tu coderas) : `leaflet`, `react-leaflet`, types Leaflet.
+## Contrat (personne n’y touche sans le groupe)
 
-Job **minimum** pour le MVP :
+- `GET /api/round` → `{ roundId, imageUrl, locationId }` — **jamais** lat/lng ni nom de ville
+- `POST /api/round/{roundId}/guess` `{ latitude, longitude }` → `{ distanceKm, score, actualLocation }`
+- Photos : `http://127.0.0.1:8000/static/locations/paris.jpg`
+- 5 manches = 5× `GET /api/round` **côté React**
 
-1. Afficher le monde (tuiles OSM).
-2. Au clic : récupérer `{ latitude, longitude }`.
-3. Poser un marker sur le clic.
-4. `console.log` des coords — même sans backend, c’est déjà OK.
-5. Attribution OSM visible (obligation).
+---
 
-Après le guess (quand P1 te passe `actualLocation`) : un **deuxième** marker pour le point réel.
+## Qui fait quoi
 
-Tu ne calcules **pas** la distance. Tu ne dessines **pas** de carte.
+### P1
+**Front** `frontend/src/features/game` : start, timer, 5 manches, score, bouton Guess. Tu **importes** la carte P2, tu ne la recodes pas.  
+**Back** `backend/app/schemas.py` : modèles Pydantic = le JSON du contrat.
 
-## Personne 3 — FastAPI
+Déjà fait : écran start, timer, squelette GameScreen (TODOs encore).  
+À faire : charger le round, photo, Guess, next, restart + `schemas.py`.
 
-Dossiers : `backend/app/routers`, `backend/app/services`
+### P2
+**Front** `frontend/src/features/map` : Leaflet + OSM, clic → coords, marker.  
+**Back** `backend/app/services/scoring.py` : Haversine + `score = max(0, round(5000 * exp(-km / 2000)))`.
 
-1. `GET /api/round` et `POST /api/round/{roundId}/guess` selon [api.md](./api.md).
-2. Distance Haversine + score (formule dans le contrat).
-3. Monter les fichiers statiques : dossier `app/data/images/` → URL `/static/locations/`.
-4. `imageUrl` renvoyé = `http://127.0.0.1:8000/static/locations/<fichier>.jpg` (en local).
-5. Garder en mémoire `roundId → coords réelles` jusqu’au guess. **Ne pas** envoyer ces coords dans le GET.
+Déjà fait : carte + clic + marker (sur `P2`).  
+À faire : brancher la carte **dans** GameScreen (pas un 2ᵉ `main.tsx`), 2ᵉ marker après guess, coder `scoring.py`.
 
-CORS : le front est sur `http://127.0.0.1:5173` (déjà prévu dans `main.py`).
+### P3
+**Front** `frontend/src/shared/api` : `getRound` / `postGuess` (vrai HTTP quand l’API existe).  
+**Back** `routers/rounds.py` + `services/game.py` : les 2 routes + mémoire `roundId → coords`. Monter `/static/locations/`.
 
-## Personne 4 — données
+Déjà fait : client + mocks (Phase 0). Router vide.  
+À faire : implémenter les routes **sans** renvoyer lat/lng dans le GET.
 
-Dossier : `backend/app/data`
+### P4
+**Front** : `<img src={imageUrl} />` dans l’écran de jeu (avec P1).  
+**Back** `backend/app/data/` : `locations.json` + **8 jpg** dans `images/`.
 
-1. Remplir `locations.json`.
-2. Déposer les `.jpg` dans `backend/app/data/images/`.
-3. Chaque ligne JSON pointe vers **une** image, avec des coords **vraies** (le lieu de la photo).
+Déjà fait : 1 ligne Paris, **0 image**.  
+À faire : 8 photos libres + JSON avec les **vraies** coords.
 
-Format d’une ligne (inchangé) :
+### P5
+**Front** `app/` : coller GameScreen + carte P2, mocks, CI front.  
+**Back** `backend/tests/` : tests scoring, API, « pas de coords dans le GET ».
 
-```json
-{
-  "id": "1",
-  "latitude": 48.8566,
-  "longitude": 2.3522,
-  "imageUrl": "http://127.0.0.1:8000/static/locations/paris.jpg"
-}
-```
-
-Pour le MVP : **8 photos** suffisent (5 manches + un peu de relance).  
-Photos libres (Wikimedia, Unsplash) ou photos du groupe. **Pas** de Street View Google.
-
-Le nom du fichier (`paris.jpg`) n’est **jamais** renvoyé comme indice dans `GET /round` — seulement `imageUrl` + `locationId`.
-
-Détail : [backend/app/data/README.md](../backend/app/data/README.md).
-
-## Personne 5 — qualité
-
-- Tests scoring : Paris/Paris → 0 km, score 5000.
-- Tests API : GET 200 **sans** lat/lng ; POST sans latitude → 422 ; round inconnu → 404.
-- Vérifier que `imageUrl` charge bien (fichier existant).
-- Plus tard : E2E START → clic carte → GUESS → résultat.
+Déjà fait : `/health`, CI, contrat, architecture.  
+À faire : tests dès que P2/P3 livrent + intégration P1↔P2.
 
 ---
 
 ## Interdit
 
-- Dessiner une carte / canvas / SVG monde maison
-- Google Maps, Mapbox, Street View
-- Renvoyer lat/lng (ou le nom de la ville) **avant** le guess
-- Mettre les images dans `frontend/public` — elles restent **backend**
+- Carte maison / Google Maps / Mapbox / Street View
+- Images dans `frontend/public`
+- Lat/lng (ou le nom de la ville) **avant** le guess
+- Recoder le dossier de quelqu’un d’autre
