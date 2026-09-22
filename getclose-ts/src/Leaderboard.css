@@ -1,0 +1,53 @@
+.leaderboard {
+  width: 100%;
+  max-width: 28rem;
+  margin: 1.5rem auto 0;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--sg-panel-border);
+  border-radius: 1rem;
+  background: var(--sg-panel);
+}
+
+.leaderboard h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sg-accent-2);
+}
+
+.leaderboard__empty {
+  margin: 0;
+  color: var(--sg-muted);
+  letter-spacing: 0.2em;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard th,
+.leaderboard td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--sg-panel-border);
+}
+
+.leaderboard tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sg-muted);
+}
+
+.leaderboard tbody tr:first-child td {
+  font-weight: 700;
+  color: var(--sg-ok);
+}

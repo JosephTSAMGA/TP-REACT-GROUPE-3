@@ -1,58 +1,158 @@
+/* Palette isolée (préfixe sg- = "start-game") pour ne pas interferer avec
+   les variables --text/--bg/--accent globales de index.css, utilisées par
+   les autres écrans du projet. */
 .start-screen {
+  --sg-bg: #f2e8d5;
+  --sg-bg-glow: #fbf5e8;
+  --sg-panel: rgba(255, 255, 255, 0.55);
+  --sg-panel-border: rgba(90, 65, 30, 0.2);
+  --sg-text: #33281c;
+  --sg-muted: #6f604b;
+  --sg-accent: #2a5a99;
+  --sg-accent-2: #a8452f;
+  --sg-ok: #2b7a4f;
+  --sg-danger: #b3322b;
+  --sg-btn: #3d72bd;
+  --sg-btn-hover: #4a80cc;
+  --sg-btn-text: #ffffff;
+  --sg-btn-ring: #1f4a86;
+  --sg-glow-btn: 0 2px 8px rgba(61, 114, 189, 0.35);
+  --sg-focus-glow: 0 0 0 3px rgba(61, 114, 189, 0.3);
+
   min-height: 100vh;
-  background: #0f1b2d;
-  color: #f2efe6;
-  font-family: "Space Grotesk", system-ui, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.start-content {
+  max-width: none;
+  margin: 0;
+  padding: 3rem 1.25rem;
   text-align: center;
-  max-width: 420px;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--sg-text);
+  background:
+    radial-gradient(60rem 30rem at 15% -10%, var(--sg-bg-glow), transparent 60%),
+    var(--sg-bg);
 }
 
-.start-eyebrow {
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+.start-screen__eyebrow {
+  margin: 0;
   text-transform: uppercase;
-  color: #8fa3bd;
-  margin: 0 0 0.5rem;
+  letter-spacing: 0.18em;
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 800;
+  color: var(--sg-accent);
 }
 
-.start-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  color: #e8b347;
-}
-
-.start-tagline {
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: #c7d2e0;
-  margin: 0 0 2rem;
-}
-
-.start-button {
-  background: #e8b347;
-  color: #16273d;
-  border: none;
-  padding: 0.9rem 2.5rem;
-  font-size: 1.1rem;
+.start-screen h1 {
+  margin: 0;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
   font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
+  color: var(--sg-text);
+}
+
+.start-screen__rules {
+  max-width: 34rem;
+  color: var(--sg-muted);
+  line-height: 1.6;
+}
+
+.start-screen__mode {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.start-screen__mode button {
+  padding: 0.45rem 1.2rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--sg-btn);
+  color: var(--sg-btn-text);
+  font-weight: 600;
   font-family: inherit;
+  cursor: pointer;
+  opacity: 0.88;
+}
+
+/* Sélectionné : même bleu, mais net, avec un anneau clair. */
+.start-screen__mode button.is-selected {
+  opacity: 1;
+  border-color: var(--sg-btn-ring);
+  box-shadow: var(--sg-glow-btn);
+}
+
+.start-screen__field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.start-screen__field label {
+  font-weight: 600;
+  color: var(--sg-muted);
+}
+
+.start-screen__field input {
+  width: 17rem;
+  max-width: 100%;
+  padding: 0.6rem 1.1rem;
+  font: inherit;
+  text-align: center;
+  color: var(--sg-text);
+  border: 2px solid var(--sg-panel-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.start-screen__field input::placeholder {
+  color: var(--sg-muted);
+  opacity: 0.7;
+}
+
+.start-screen__field input:focus {
+  border-color: var(--sg-accent);
+  box-shadow: var(--sg-focus-glow);
+  outline: none;
+}
+
+.start-screen__field input[aria-invalid="true"] {
+  border-color: var(--sg-danger);
+  box-shadow: 0 0 0 3px rgba(179, 50, 43, 0.22);
+}
+
+.start-screen__error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sg-danger);
+}
+
+.start-screen__play {
+  margin-top: 0.75rem;
+  padding: 0.85rem 2.6rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  background: var(--sg-btn);
+  color: var(--sg-btn-text);
+  box-shadow: var(--sg-glow-btn);
+  font-family: inherit;
+  cursor: pointer;
   transition: transform 0.1s ease;
 }
 
-.start-button:hover {
+.start-screen__play:hover {
+  background: var(--sg-btn-hover);
   transform: translateY(-2px);
 }
 
-.start-button:active {
+.start-screen__play:active {
   transform: translateY(0);
 }
