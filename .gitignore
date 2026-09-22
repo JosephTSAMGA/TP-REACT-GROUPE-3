@@ -13,3 +13,5 @@ __pycache__/
 coverage/
 *.log
 .vite/
+*.zip
+/getclose-ts/
