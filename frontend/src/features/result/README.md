@@ -1,4 +1,3 @@
-# Feature `result` — P1
+# Feature `result` — P3
 
-Après `POST /guess` : `distanceKm` + `score`.  
-`actualLocation` → P2 pour le marker réel.
+Écran après **une** manche : distance, points, reverse geocoding Nominatim.

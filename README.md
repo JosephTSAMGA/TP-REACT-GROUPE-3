@@ -39,16 +39,15 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 Santé : [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)  
 Docs générées : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Les routes de jeu sont dans le contrat, **pas encore implémentées**. Qui fait quoi : [docs/CONSIGNES.md](docs/CONSIGNES.md).
+Les routes FastAPI du contrat ne sont pas le sujet de l’oral front. Le jeu tourne **dans le navigateur** (Nominatim + localStorage).
 
-## Qui fait quoi (résumé)
+## Qui fait quoi
 
-| | Front | Back |
-|---|---|---|
-| P1 | `features/game` | `schemas.py` |
-| P2 | `features/map` (Leaflet) | `scoring.py` |
-| P3 | `shared/api` | routes + `game.py` + `/static` |
-| P4 | `<img imageUrl>` | `data/` json + images |
-| P5 | coller P1+P2, CI | tests |
+| | Front |
+|---|---|
+| P1 | routes, NavBar, StartScreen |
+| P2 | GamePage, RoundScreen, carte Leaflet |
+| P3 | scoring, geocoding Nominatim, RoundResult |
+| P5 | FinishedScreen, historique, localStorage |
 
 Branches : [CONTRIBUTING.md](CONTRIBUTING.md).

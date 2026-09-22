@@ -1,7 +1,4 @@
-# Feature `game` — P1
+# Feature `game`
 
-Start, timer, 5 manches, score total, bouton Guess.
-
-Tu importes `features/map` (P2). Tu n’implémentes pas Leaflet.
-
-Photo : `round.imageUrl` (fichiers P4). API : `shared/api` (P3).
+- **P1** — `StartScreen` (formulaire pseudo)
+- **P2** — `GamePage`, `RoundScreen` (manche, timer, confirmer)
