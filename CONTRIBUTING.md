@@ -1,40 +1,16 @@
 # Contribution
 
-## Branches
-
 ```
-main          ← version stable
-  └── dev     ← intégration
-        ├── P1
-        ├── P2
-        ├── P3
-        ├── P4
-        └── P5
+main → dev → P1 | P2 | P3 | P5
 ```
 
-Chacun travaille sur **sa** branche (`P1` … `P5`).  
-Besoin d’une branche en plus ? Ils la créent depuis la leur (`feat/…`, `fix/…`).  
-On merge vers `dev`, puis `dev` → `main`.
+P4 n’est plus dans le projet.
 
-| Branche | Qui |
+| Branche | Fichiers front |
 |---|---|
-| `P1` | Personne 1 — écran de jeu, timer, score |
-| `P2` | Personne 2 — Leaflet + OSM |
-| `P3` | Personne 3 — FastAPI, scoring, `/static/locations/` |
-| `P4` | Personne 4 — `locations.json` + images |
-| `P5` | Personne 5 — tests, CI, intégration |
+| `P1` | `app/` (router, NavBar), `features/game/StartScreen` |
+| `P2` | `GamePage`, `RoundScreen`, `features/map` |
+| `P3` | `shared/scoring.ts`, `geocoding.ts`, `features/result` |
+| `P5` | `shared/storage.ts`, `features/history` |
 
-Démarrage : `git fetch && git checkout P2` (par exemple).
-
-## Contrat API
-
-Ne pas changer le JSON sans mettre à jour `docs/openapi.yaml` et `docs/api.md` dans la même PR.
-
-Papier groupe : `docs/CONSIGNES.md`.  
-Interdit : carte maison, Google Maps, images dans le frontend, lat/lng avant le guess.
-
-## Qualité
-
-- Frontend : ESLint + Prettier (`npm run lint` / `npm run format` dans `frontend/`)
-- Backend : Ruff (`ruff check` dans `backend/`)
-- CI GitHub Actions sur chaque PR
+Détail : `docs/CONSIGNES.md`.

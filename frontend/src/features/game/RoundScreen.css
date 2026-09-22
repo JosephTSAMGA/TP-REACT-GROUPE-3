@@ -99,3 +99,32 @@
   color: #8fa3bd;
   cursor: not-allowed;
 }
+
+/* Sur mobile : header plus compact et photo un peu plus grande relativement
+   à l'écran, pour rester lisible sur un petit écran tactile. */
+@media (max-width: 480px) {
+  .round-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .round-count,
+  .round-cumulative {
+    font-size: 0.8rem;
+  }
+
+  .round-timer {
+    font-size: 1.2rem;
+  }
+
+  .round-play-area {
+    margin: 0.5rem 0.75rem 0.25rem;
+  }
+
+  .round-image {
+    max-width: 60%;
+  }
+
+  .round-confirm-button {
+    margin: 0.5rem 0.75rem 1rem;
+  }
+}
