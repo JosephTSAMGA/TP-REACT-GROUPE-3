@@ -1,9 +1,8 @@
-# Client API partagé
+# Client API — P3
 
-Types + mocks + `getRound` / `postGuess`.
+`getRound` / `postGuess` + types + mocks.
 
-Les mocks sont actifs tant que `VITE_USE_MOCKS` n’est pas `false` (voir `.env.example`).
-Les coordonnées réelles n’existent que dans `GuessResponse.actualLocation`.
+Mocks si `VITE_USE_MOCKS` ≠ `false`.  
+Pas de lat/lng dans `RoundResponse`. `actualLocation` seulement après guess.
 
-`imageUrl` pointe vers le backend : `http://127.0.0.1:8000/static/locations/<fichier>.jpg`.
-Le contrat JSON ne change pas.
+Back P3 : `routers/rounds.py` + `services/game.py`.

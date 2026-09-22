@@ -1,0 +1,45 @@
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #16273d;
+  border-bottom: 1px solid #22364f;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+}
+
+.nav-brand {
+  color: #e8b347;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.nav-link {
+  color: #8fa3bd;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.nav-link:hover {
+  color: #f2efe6;
+}
+
+.nav-link.active {
+  color: #e8b347;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .nav-bar {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-links {
+    gap: 0.85rem;
+  }
+}
