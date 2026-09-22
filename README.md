@@ -39,16 +39,15 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 Santé : [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)  
 Docs générées : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Les routes de jeu (`GET /api/round`, `POST /api/round/{id}/guess`) sont spécifiées dans le contrat mais **pas encore implémentées** (personne 3).
+Les routes FastAPI du contrat ne sont pas le sujet de l’oral front. Le jeu tourne **dans le navigateur** (Nominatim + localStorage).
 
 ## Qui fait quoi
 
-| Personne | Zone |
+| | Front |
 |---|---|
-| 1 — Frontend Game | `frontend/src/features/game` |
-| 2 — Frontend Map | Leaflet + OSM dans `frontend/src/features/map` |
-| 3 — Backend Game | routes + scoring + `/static/locations/` |
-| 4 — Backend Data | `locations.json` + `backend/app/data/images/` |
-| 5 — Qualité | `backend/tests`, CI, mocks, intégration |
+| P1 | routes, NavBar, StartScreen |
+| P2 | GamePage, RoundScreen, carte Leaflet |
+| P3 | scoring, geocoding Nominatim, RoundResult |
+| P5 | FinishedScreen, historique, localStorage |
 
 Branches : [CONTRIBUTING.md](CONTRIBUTING.md).
