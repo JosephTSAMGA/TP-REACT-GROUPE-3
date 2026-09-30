@@ -1,23 +1,20 @@
-// =============================================================
-// PARTIE 1/4 — Navigation & formulaire
-// Fichiers de cette partie : App.tsx, StartScreen.tsx (+.css), NavBar.tsx (+.css).
-// Rôle de ce fichier : la page d'accueil, avec le SEUL formulaire de
-// l'application (le barème demande un formulaire avec input contrôlé,
-// validation et messages d'erreur — tout est ici).
-// =============================================================
 import { useState, type FormEvent } from "react";
 import "./StartScreen.css";
 
+export type StartPayload = {
+  mode: "register" | "login";
+  pseudo: string;
+  email: string;
+  password: string;
+};
+
 type StartScreenProps = {
-  onStart: (pseudo: string) => void;
+  onStart: (payload: StartPayload) => Promise<void> | void;
 };
 
 const MIN_LENGTH = 2;
 const MAX_LENGTH = 20;
 
-// Vérifie le pseudo et renvoie un message d'erreur, ou null si tout va bien.
-// On centralise la règle ici pour ne pas la dupliquer entre l'affichage
-// en direct (pendant la frappe) et la validation à la soumission.
 function validatePseudo(pseudo: string): string | null {
   const trimmed = pseudo.trim();
   if (trimmed.length === 0) return "Le pseudo est obligatoire.";
@@ -27,24 +24,45 @@ function validatePseudo(pseudo: string): string | null {
 }
 
 export default function StartScreen({ onStart }: StartScreenProps) {
-  // Champ contrôlé : la valeur de l'input vit dans le state React,
-  // pas dans le DOM (c'est ce qui définit un "input contrôlé").
+  const [mode, setMode] = useState<"register" | "login">("register");
   const [pseudo, setPseudo] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    // Empêche le comportement par défaut du navigateur (rechargement
-    // de la page à la soumission d'un <form>).
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const validationError = validatePseudo(pseudo);
-    if (validationError) {
-      setError(validationError);
+    if (mode === "register") {
+      const validationError = validatePseudo(pseudo);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+    if (!email.trim() || !password) {
+      setError("Email et mot de passe sont obligatoires.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Le mot de passe doit faire au moins 8 caractères.");
       return;
     }
 
     setError(null);
-    onStart(pseudo.trim());
+    setPending(true);
+    try {
+      await onStart({
+        mode,
+        pseudo: pseudo.trim(),
+        email: email.trim(),
+        password,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Connexion impossible.");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -57,29 +75,68 @@ export default function StartScreen({ onStart }: StartScreenProps) {
         </p>
 
         <form className="start-form" onSubmit={handleSubmit} noValidate>
-          <label className="start-label" htmlFor="pseudo">
-            Ton pseudo
+          {mode === "register" && (
+            <>
+              <label className="start-label" htmlFor="pseudo">
+                Ton pseudo
+              </label>
+              <input
+                id="pseudo"
+                className="start-input"
+                type="text"
+                value={pseudo}
+                onChange={(event) => setPseudo(event.target.value)}
+                placeholder="ex : Zouzou"
+                aria-invalid={error !== null}
+              />
+            </>
+          )}
+
+          <label className="start-label" htmlFor="email">
+            Email
           </label>
           <input
-            id="pseudo"
+            id="email"
             className="start-input"
-            type="text"
-            value={pseudo}
-            onChange={(event) => setPseudo(event.target.value)}
-            placeholder="ex : Zouzou"
-            aria-invalid={error !== null}
-            aria-describedby={error ? "pseudo-error" : undefined}
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="ex : zouzou@test.com"
           />
+
+          <label className="start-label" htmlFor="password">
+            Mot de passe
+          </label>
+          <input
+            id="password"
+            className="start-input"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="8 caractères minimum"
+          />
+
           {error && (
             <p id="pseudo-error" className="start-error">
               {error}
             </p>
           )}
 
-          <button className="start-button" type="submit">
-            Jouer
+          <button className="start-button" type="submit" disabled={pending}>
+            {pending ? "Chargement…" : mode === "register" ? "Créer un compte et jouer" : "Connexion et jouer"}
           </button>
         </form>
+
+        <button
+          type="button"
+          className="start-switch"
+          onClick={() => {
+            setMode((current) => (current === "register" ? "login" : "register"));
+            setError(null);
+          }}
+        >
+          {mode === "register" ? "J'ai déjà un compte" : "Créer un compte"}
+        </button>
       </div>
     </div>
   );

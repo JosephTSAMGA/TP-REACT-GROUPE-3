@@ -1,24 +1,45 @@
-/** Types alignés sur docs/openapi.yaml. Ne pas y ajouter lat/lng dans RoundResponse. */
-
 export type RoundResponse = {
-  roundId: string;
-  imageUrl: string;
-  locationId: string;
+  id: number;
+  session_id: number;
+  position: number;
+  image_url: string;
+  guessed: boolean;
 };
 
 export type GuessRequest = {
+  round_id: number;
   latitude: number;
   longitude: number;
 };
 
 export type ActualLocation = {
-  locationId: string;
+  id: number;
+  name: string;
   latitude: number;
   longitude: number;
+  image_url: string;
 };
 
 export type GuessResponse = {
-  distanceKm: number;
+  id: number;
+  round_id: number;
+  user_id: number;
+  latitude: number;
+  longitude: number;
+  distance_km: number;
   score: number;
-  actualLocation: ActualLocation;
+  actual_location: ActualLocation;
+};
+
+export type UserOut = {
+  id: number;
+  pseudo: string;
+  email: string;
+  created_at: string;
+};
+
+export type TokenResponse = {
+  access_token: string;
+  token_type: string;
+  user: UserOut;
 };

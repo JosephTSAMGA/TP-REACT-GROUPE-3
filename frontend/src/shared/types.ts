@@ -1,30 +1,39 @@
-// =============================================================
-// FICHIER PARTAGÉ — utilisé par les 4 parties du projet.
-// Chacun doit au moins jeter un œil ici : ce sont les "contrats" de
-// données utilisés partout (une position GPS, une manche, un résultat).
-// =============================================================
-// Types partagés entre plusieurs composants du jeu.
-// On les centralise ici pour éviter de retaper le même type
-// (Coordinates) dans App.tsx, RoundScreen.tsx et InteractiveMap.tsx.
-
-// Une position GPS : latitude / longitude.
 export type Coordinates = {
   lat: number;
   lng: number;
 };
 
-// Une manche du jeu : l'image à afficher + la vraie position
-// (la "correction") + un nom lisible pour l'écran de résultat.
-export type Round = {
-  imageUrl: string;
-  answer: Coordinates;
-  label: string;
+export type PlayRound = {
+  id: number;
+  session_id: number;
+  position: number;
+  image_url: string;
+  guessed: boolean;
 };
 
-// Le résultat d'une manche une fois que le joueur a confirmé sa réponse.
+export type GameSession = {
+  id: number;
+  user_id: number;
+  score_total: number;
+  finished: boolean;
+  started_at: string;
+  finished_at: string | null;
+  rounds: PlayRound[];
+};
+
+export type AuthUser = {
+  id: number;
+  pseudo: string;
+  email: string;
+};
+
 export type RoundOutcome = {
   guess: Coordinates;
-  answer: Round;
+  answer: {
+    imageUrl: string;
+    label: string;
+    answer: Coordinates;
+  };
   distanceKm: number;
   points: number;
 };

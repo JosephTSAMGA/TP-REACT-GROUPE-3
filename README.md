@@ -1,20 +1,33 @@
-# TP React Groupe 3 — GeoGuessr
+# GetClose — TP React + FastAPI (groupe 4)
 
-React + TypeScript / FastAPI.  
-À lire en premier : [docs/CONSIGNES.md](docs/CONSIGNES.md)  
-Architecture : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Contrat API : [docs/api.md](docs/api.md)
+Front React (GetClose) + API FastAPI (JWT, 8 CRUD).  
+Swagger : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-## Prérequis
-
-- Node.js 20+
-- Python 3.9+ (3.12 recommandé)
+**Docker n’est pas obligatoire.** Sans Docker, l’API utilise SQLite. Docker ne sert que si vous voulez PostgreSQL (recommandé pour coller à la grille).
 
 ## Lancer le projet
 
+### Backend (sans Docker)
+
 ```bash
-git clone <url-du-repo>
-cd TP-REACT-GROUPE-3
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
+
+### Backend (PostgreSQL + Docker, optionnel)
+
+```bash
+cd backend
+copy .env.example .env
+# Dans .env, décommentez la ligne DATABASE_URL postgresql
+docker compose up -d db
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Santé : [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 
 ### Frontend
 
@@ -24,30 +37,23 @@ npm install
 npm run dev
 ```
 
-Ouvre [http://127.0.0.1:5173](http://127.0.0.1:5173).
+Ouvre [http://127.0.0.1:5173](http://127.0.0.1:5173). Vite proxy `/api` vers le backend.
 
-### Backend
+## Tests API
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+pytest
 ```
 
-Santé : [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)  
-Docs générées : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+## Répartition
 
-Les routes FastAPI du contrat ne sont pas le sujet de l’oral front. Le jeu tourne **dans le navigateur** (Nominatim + localStorage).
+| Personne | Front | Back |
+|---|---|---|
+| P1 | Accueil, routes | User, GameSession, JWT |
+| P2 | Carte, manches | — (consomme Round / Guess) |
+| P3 / lieux | Résultat, Nominatim | Category, Location, tirage |
+| P4 | Badges (API) | Badge, UserBadge |
+| P5 | Historique | Round, Guess, scoring |
 
-## Qui fait quoi
-
-| | Front |
-|---|---|
-| P1 | routes, NavBar, StartScreen |
-| P2 | GamePage, RoundScreen, carte Leaflet |
-| P3 | scoring, geocoding Nominatim, RoundResult |
-| P5 | FinishedScreen, historique, localStorage |
-
-Branches : [CONTRIBUTING.md](CONTRIBUTING.md).
+Le jeu enchaîne : inscription/connexion → `POST /api/sessions` → clic carte → `POST /api/guesses` → résultat.

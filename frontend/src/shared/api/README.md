@@ -1,8 +1,6 @@
-# Client API — P3
+# Client API
 
-`getRound` / `postGuess` + types + mocks.
+`registerUser` / `loginUser` (JWT), `createSession`, `postGuess`, `listSessions`.
 
-Mocks si `VITE_USE_MOCKS` ≠ `false`.  
-Pas de lat/lng dans `RoundResponse`. `actualLocation` seulement après guess.
-
-Back P3 : `routers/rounds.py` + `services/game.py`.
+Le token est stocké dans `localStorage` (`getclose_token`).
+Les manches renvoyées par `GET/POST /api/sessions` n’incluent **pas** les coordonnées du lieu.

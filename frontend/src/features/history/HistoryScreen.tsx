@@ -1,24 +1,27 @@
-// =============================================================
-// PARTIE 4/4 — Persistance & historique
-// Fichiers de cette partie : utils/storage.ts, FinishedScreen.tsx (+.css),
-// HistoryScreen.tsx (+.css).
-// Rôle de ce fichier : la 4ᵉ page de l'appli (/historique), qui liste
-// toutes les parties précédentes. C'est la preuve la plus visuelle
-// de la persistance : ferme l'onglet, rouvre-le, l'historique est
-// toujours là.
-// =============================================================
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./HistoryScreen.css";
+import { listSessions } from "../../shared/api";
 import { loadHistory, type GameResult } from "../../shared/storage";
 
-// Affiche les parties précédentes, lues depuis le localStorage.
-// C'est la preuve visuelle que la persistance fonctionne : les données
-// sont encore là même après un rafraîchissement complet de la page.
 export default function HistoryScreen() {
-  // On lit le localStorage directement dans l'état initial : React Router
-  // remonte ce composant à chaque fois qu'on arrive sur "/historique",
-  // donc pas besoin d'un useEffect pour "resynchroniser" après coup.
-  const [history] = useState<GameResult[]>(() => loadHistory());
+  const [history, setHistory] = useState<GameResult[]>(() => loadHistory());
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    listSessions()
+      .then((sessions) => {
+        setHistory(
+          sessions.map((session) => ({
+            pseudo: "Toi",
+            score: session.score_total,
+            playedAt: session.started_at,
+          })),
+        );
+      })
+      .catch(() => {
+        setError("Historique serveur indisponible, affichage local.");
+      });
+  }, []);
 
   const sortedByDate = [...history].reverse();
 
@@ -26,6 +29,7 @@ export default function HistoryScreen() {
     <div className="history-screen">
       <div className="history-card">
         <h1 className="history-title">Historique des parties</h1>
+        {error && <p className="history-empty">{error}</p>}
 
         {sortedByDate.length === 0 ? (
           <p className="history-empty">Aucune partie jouée pour l'instant.</p>
@@ -40,7 +44,7 @@ export default function HistoryScreen() {
             </thead>
             <tbody>
               {sortedByDate.map((entry, index) => (
-                <tr key={index}>
+                <tr key={`${entry.playedAt}-${index}`}>
                   <td>{entry.pseudo}</td>
                   <td>{entry.score.toLocaleString("fr-FR")} pts</td>
                   <td>{new Date(entry.playedAt).toLocaleString("fr-FR")}</td>

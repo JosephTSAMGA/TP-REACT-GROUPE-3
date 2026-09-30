@@ -22,7 +22,7 @@ type RoundScreenProps = {
   onTimeUp?: () => void;
   // Callback déclenché quand le joueur clique sur "Confirmer".
   // On remonte juste les coordonnées choisies, pas de calcul ici.
-  onConfirm: (guess: Coordinates) => void;
+  onConfirm: (guess: Coordinates) => void | Promise<void>;
 };
 
 export default function RoundScreen({

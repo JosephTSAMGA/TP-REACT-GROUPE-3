@@ -1,7 +1,19 @@
-export { getRound, postGuess } from "./client";
+export {
+  clearToken,
+  createSession,
+  evaluateBadges,
+  finishSession,
+  getToken,
+  listSessions,
+  loginUser,
+  postGuess,
+  registerUser,
+  setToken,
+} from "./client";
 export type {
   ActualLocation,
   GuessRequest,
   GuessResponse,
-  RoundResponse,
+  TokenResponse,
+  UserOut,
 } from "./types";

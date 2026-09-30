@@ -99,6 +99,21 @@
   margin-top: 0.5rem;
 }
 
+.start-switch {
+  margin-top: 1rem;
+  background: transparent;
+  border: none;
+  color: #8fa3bd;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.start-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
 /* Écrans étroits (mobiles) : on réduit les marges et la taille du titre. */
 @media (max-width: 480px) {
   .start-content {
