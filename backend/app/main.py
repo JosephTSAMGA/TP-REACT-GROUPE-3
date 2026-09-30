@@ -7,16 +7,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, engine
-from app.routers import auth, sessions
+from app.database import Base, SessionLocal, engine
 
 # Crée les tables en base si elles n'existent pas encore (simple pour un
 # projet étudiant ; un vrai projet utiliserait des migrations Alembic).
 # Importer les modèles avant ce create_all est indispensable : SQLAlchemy
 # ne connaît une table que si sa classe Python a été chargée au moins une fois.
-from app.models import game_session, user  # noqa: F401
+from app.models import badge, game_session, user, user_badge  # noqa: F401
+from app.routers import auth, badges, sessions
+from app.seed_badges import seed_badges_if_empty
 
 Base.metadata.create_all(bind=engine)
+
+# Remplit le catalogue de badges une fois, si la table vient d'être créée.
+_seed_db = SessionLocal()
+try:
+    seed_badges_if_empty(_seed_db)
+finally:
+    _seed_db.close()
 
 app = FastAPI(
     title="GetClose API",
@@ -43,6 +51,7 @@ def health_check():
 
 app.include_router(auth.router)
 app.include_router(sessions.router)
+app.include_router(badges.router)
 
 # À mesure que chaque étudiant crée son router, on le branche ici, par exemple :
 # from app.routers import locations, categories

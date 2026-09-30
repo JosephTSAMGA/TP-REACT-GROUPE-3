@@ -24,3 +24,9 @@ class User(Base):
     sessions = relationship(
         "GameSession", back_populates="user", cascade="all, delete-orphan"
     )
+
+    # Relation 1-N vers la table de liaison UserBadge : un User débloque
+    # plusieurs Badge, chaque ligne UserBadge gardant la date de déblocage.
+    badges = relationship(
+        "UserBadge", back_populates="user", cascade="all, delete-orphan"
+    )
