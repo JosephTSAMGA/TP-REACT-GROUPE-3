@@ -1,4 +1,5 @@
 # Feature `history` — P5
 
 `FinishedScreen` (`/resultats`) + `HistoryScreen` (`/historique`).  
-Persistance : `shared/storage.ts` (localStorage).
+Source principale : `GET /api/sessions` (parties en base).  
+`shared/storage.ts` = repli local si l’API n’est pas joignable.

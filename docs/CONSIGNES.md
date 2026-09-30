@@ -1,30 +1,53 @@
-# Consignes groupe
+# Consignes — GetClose (groupe de 4)
 
-P4 est hors projet. **4 personnes.** Une seule app : `frontend/` (plus de `getclose-ts/`).
+Jeu de géographie : une photo, une carte, 5 manches.  
+Front React (`frontend/`) + API FastAPI (`backend/`).
+
+Lancement : voir le [README racine](../README.md). **Docker n’est pas obligatoire** (SQLite par défaut).
+
+## Flux
 
 ```
-cd frontend && npm install && npm run dev
+Inscription / connexion (JWT)
+        ↓
+POST /api/sessions          → 5 manches tirées au hasard (sans lat/lng)
+        ↓
+Photo + carte Leaflet
+        ↓
+POST /api/guesses           → distance Haversine + score + lieu réel
+        ↓
+Écran résultat (Nominatim pour le lieu cliqué)
+        ↓
+Après 5 manches → score final + historique
 ```
 
-## Qui possède quoi
+## Répartition
 
-| Qui | Fichiers |
+| Personne | Front | Back |
+|---|---|---|
+| P1 | Accueil, routes, NavBar, `StartScreen` | User, GameSession, JWT |
+| P2 | `GamePage`, `RoundScreen`, carte Leaflet | consomme Round / Guess |
+| P3 | `RoundResult`, Nominatim (affichage) | Category, Location, tirage de partie |
+| P4 | — | Badge, UserBadge, géocodage serveur |
+| P5 | Historique, écran de fin | Round, Guess, scoring Haversine |
+
+## Routes front
+
+| URL | Écran |
 |---|---|
-| **P1** | `src/app/` (routes, NavBar), `features/game/StartScreen.*` |
-| **P2** | `features/game/GamePage.tsx`, `RoundScreen.*`, `features/map/InteractiveMap.tsx` |
-| **P3** | `shared/scoring.ts`, `shared/geocoding.ts`, `features/result/RoundResult.*` |
-| **P5** | `shared/storage.ts`, `features/history/FinishedScreen.*`, `HistoryScreen.*` |
+| `/` | Accueil : inscription ou connexion |
+| `/jeu` | Manche (photo + carte + Valider) |
+| (état interne) | Résultat de manche |
+| `/resultats` | Score final |
+| `/historique` | Parties du joueur (API `/api/sessions`) |
 
-`shared/types.ts` = contrat commun (coords, manche).
+## Règles
 
-## Routes
-
-- `/` accueil + formulaire pseudo (P1)
-- `/jeu` 5 manches + carte (P2)
-- après chaque manche → RoundResult (P3) + Nominatim
-- `/resultats` fin de partie (P5)
-- `/historique` localStorage (P5)
+- Jamais de lat/lng (ni le nom du lieu) **avant** le guess.
+- Carte = Leaflet + OpenStreetMap, pas de carte maison, pas de Google Maps.
+- Score calculé **côté API** (`POST /api/guesses`).
+- Contrat détaillé : [api.md](./api.md) · spec live : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ## Git
 
-`git checkout P1` (ou P2 / P3 / P5). Merge vers `dev`. Pas de P4.
+Travail intégré sur `dev`. Branches `P1`…`P5` = historique de répartition.

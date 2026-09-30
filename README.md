@@ -73,3 +73,10 @@ pytest
 | P5 | Historique | Round, Guess, scoring |
 
 Flux : inscription → `POST /api/sessions` → clic carte → `POST /api/guesses` → résultat.
+
+## Documentation
+
+- [docs/CONSIGNES.md](docs/CONSIGNES.md) — qui fait quoi, flux du jeu
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — stack, dossiers, 8 CRUD
+- [docs/api.md](docs/api.md) — contrat HTTP (Swagger : `/docs`)
+- [CONTRIBUTING.md](CONTRIBUTING.md) — branches
