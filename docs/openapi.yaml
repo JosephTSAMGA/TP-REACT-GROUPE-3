@@ -95,7 +95,304 @@ paths:
         "422":
           description: Body invalide (latitude / longitude manquantes ou hors bornes)
 
+  /api/categories:
+    get:
+      summary: Lister les thèmes
+      operationId: listCategories
+      tags: [catalog]
+      responses:
+        "200":
+          description: Thèmes, avec le nombre de lieux
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      summary: Créer un thème
+      operationId: createCategory
+      tags: [catalog]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryWrite"
+      responses:
+        "201":
+          description: Thème créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "409":
+          description: Nom ou slug déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+
+  /api/categories/{categoryId}:
+    get:
+      summary: Lire un thème et ses lieux
+      operationId: getCategory
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/CategoryId"
+      responses:
+        "200":
+          description: Thème et lieux qui lui appartiennent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryDetail"
+        "404":
+          description: Catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+    put:
+      summary: Remplacer un thème
+      operationId: updateCategory
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/CategoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryWrite"
+      responses:
+        "200":
+          description: Thème mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "409":
+          description: Nom ou slug déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+    delete:
+      summary: Supprimer un thème
+      operationId: deleteCategory
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/CategoryId"
+      responses:
+        "204":
+          description: Thème supprimé
+        "404":
+          description: Catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "409":
+          description: Des lieux appartiennent encore à ce thème
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+
+  /api/locations:
+    get:
+      summary: Lister les lieux
+      operationId: listLocations
+      tags: [catalog]
+      parameters:
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Ne garder que les lieux de ce thème
+      responses:
+        "200":
+          description: Lieux, chacun avec sa catégorie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+        "404":
+          description: Filtre categoryId inconnu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+    post:
+      summary: Créer un lieu
+      operationId: createLocation
+      tags: [catalog]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationWrite"
+      responses:
+        "201":
+          description: Lieu créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        "404":
+          description: Catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "422":
+          description: Coordonnées ou URL invalides
+
+  /api/locations/{locationId}:
+    get:
+      summary: Lire un lieu
+      operationId: getLocation
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/LocationId"
+      responses:
+        "200":
+          description: Lieu et catégorie à laquelle il appartient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        "404":
+          description: Lieu introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+    put:
+      summary: Remplacer un lieu
+      operationId: updateLocation
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/LocationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationWrite"
+      responses:
+        "200":
+          description: Lieu mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        "404":
+          description: Lieu ou catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+    delete:
+      summary: Supprimer un lieu
+      operationId: deleteLocation
+      tags: [catalog]
+      parameters:
+        - $ref: "#/components/parameters/LocationId"
+      responses:
+        "204":
+          description: Lieu supprimé
+        "404":
+          description: Lieu introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+
+  /api/sessions/random:
+    post:
+      summary: Démarrer une partie avec des lieux tirés au hasard
+      operationId: createRandomSession
+      tags: [sessions]
+      description: >
+        Choisit `size` lieux distincts (5 par défaut).
+        Si `categoryId` est fourni, le tirage reste dans ce thème.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RandomSessionRequest"
+            example:
+              size: 5
+      responses:
+        "201":
+          description: Partie créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameSession"
+        "404":
+          description: Catégorie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+        "422":
+          description: Pas assez de lieux pour la taille demandée
+
+  /api/sessions/{sessionId}:
+    get:
+      summary: Relire une partie déjà tirée
+      operationId: getSession
+      tags: [sessions]
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: La même liste de lieux, dans le même ordre
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameSession"
+        "404":
+          description: Partie introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDetail"
+
 components:
+  parameters:
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: integer
+    LocationId:
+      name: locationId
+      in: path
+      required: true
+      schema:
+        type: integer
+
   schemas:
     HealthResponse:
       type: object
@@ -174,3 +471,139 @@ components:
       properties:
         detail:
           type: string
+
+    CategoryWrite:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        slug:
+          type: string
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+
+    CategoryBrief:
+      type: object
+      additionalProperties: false
+      required: [id, name, slug]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+    Category:
+      allOf:
+        - $ref: "#/components/schemas/CategoryBrief"
+        - type: object
+          required: [locationCount]
+          properties:
+            locationCount:
+              type: integer
+              minimum: 0
+
+    LocationBrief:
+      type: object
+      additionalProperties: false
+      required: [id, name, latitude, longitude, imageUrl, categoryId]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        imageUrl:
+          type: string
+          format: uri
+        categoryId:
+          type: integer
+
+    Location:
+      allOf:
+        - $ref: "#/components/schemas/LocationBrief"
+        - type: object
+          required: [category]
+          properties:
+            category:
+              $ref: "#/components/schemas/CategoryBrief"
+
+    CategoryDetail:
+      allOf:
+        - $ref: "#/components/schemas/Category"
+        - type: object
+          required: [locations]
+          properties:
+            locations:
+              type: array
+              items:
+                $ref: "#/components/schemas/LocationBrief"
+
+    LocationWrite:
+      type: object
+      additionalProperties: false
+      required: [name, latitude, longitude, imageUrl, categoryId]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        imageUrl:
+          type: string
+          format: uri
+        categoryId:
+          type: integer
+          description: Thème auquel ce lieu appartient.
+
+    RandomSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        size:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 5
+        categoryId:
+          type: integer
+          nullable: true
+
+    GameSession:
+      type: object
+      additionalProperties: false
+      required: [id, createdAt, size, categoryId, locations]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        size:
+          type: integer
+        categoryId:
+          type: integer
+          nullable: true
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Location"

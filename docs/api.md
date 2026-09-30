@@ -98,4 +98,35 @@ Exemples attendus par les tests unitaires :
 - Un `roundId` est un UUID.
 - Le process FastAPI garde en mémoire `roundId → { locationId, latitude, longitude, guessed }`.
 - Redémarrage du serveur → les rounds en cours deviennent `404`. Acceptable pour le MVP.
-- Pas d’endpoint `POST /games` en Phase 1–3.
+- Pas d’endpoint `POST /games` en Phase 1–3. Le tirage d’une partie est `POST /api/sessions/random` (voir plus bas).
+
+## Lieux, catégories et partie aléatoire
+
+Ressources de l’étudiant B. Le score reste calculé dans le navigateur : une session renvoie donc les coordonnées, comme les manches déjà codées en dur dans le front. Ça ne change pas `GET /api/round`, qui continue de cacher lat/lng.
+
+Une **Location** appartient à une **Category** (`categoryId` obligatoire).
+
+| Méthode | Chemin | Rôle |
+|---|---|---|
+| `GET` | `/api/categories` | Liste des thèmes (`locationCount` inclus) |
+| `POST` | `/api/categories` | Créer un thème `{ "name": "Océans" }` (slug généré si absent) |
+| `GET` | `/api/categories/{id}` | Thème + ses lieux |
+| `PUT` | `/api/categories/{id}` | Remplacer le thème |
+| `DELETE` | `/api/categories/{id}` | Supprimer. `409` si des lieux y sont encore rattachés |
+| `GET` | `/api/locations?categoryId=` | Liste des lieux (filtre optionnel) |
+| `POST` | `/api/locations` | Créer un lieu |
+| `GET` | `/api/locations/{id}` | Un lieu, avec sa catégorie |
+| `PUT` | `/api/locations/{id}` | Remplacer un lieu |
+| `DELETE` | `/api/locations/{id}` | Supprimer un lieu |
+| `POST` | `/api/sessions/random` | Tirer des lieux au hasard et ouvrir une partie |
+| `GET` | `/api/sessions/{id}` | Relire la même partie |
+
+`POST /api/sessions/random` :
+
+```json
+{ "size": 5, "categoryId": 1 }
+```
+
+`size` vaut 5 par défaut (1 à 20). `categoryId` est optionnel : sans lui, le tirage porte sur tous les lieux. La réponse `201` contient les lieux dans l’ordre du tirage. S’il n’y en a pas assez, `422`. Catégorie inconnue : `404`.
+
+Au premier démarrage, la base SQLite (`backend/app/data/geoguessr.db`) est créée et remplie avec trois thèmes : Monuments, Capitales, Sites naturels. Chaque thème a au moins 5 lieux, pour qu’une partie puisse démarrer dans n’importe lequel.

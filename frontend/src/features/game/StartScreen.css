@@ -57,6 +57,12 @@
   transform: translateY(0);
 }
 
+.start-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
 .start-form {
   display: flex;
   flex-direction: column;
@@ -92,6 +98,13 @@
   text-align: left;
   color: #e2665f;
   font-size: 0.85rem;
+  margin: 0;
+}
+
+.start-hint {
+  text-align: left;
+  color: #8fa3bd;
+  font-size: 0.8rem;
   margin: 0;
 }
 

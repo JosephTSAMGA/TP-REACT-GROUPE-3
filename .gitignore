@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.local
 *.pyc
+*.db
 .DS_Store
 coverage/
 *.log

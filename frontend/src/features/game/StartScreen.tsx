@@ -8,8 +8,16 @@
 import { useState, type FormEvent } from "react";
 import "./StartScreen.css";
 
+export type ThemeOption = {
+  id: number;
+  name: string;
+};
+
 type StartScreenProps = {
-  onStart: (pseudo: string) => void;
+  onStart: (pseudo: string, categoryId: number | null) => void;
+  themes?: ThemeOption[];
+  pending?: boolean;
+  formError?: string | null;
 };
 
 const MIN_LENGTH = 2;
@@ -21,21 +29,32 @@ const MAX_LENGTH = 20;
 function validatePseudo(pseudo: string): string | null {
   const trimmed = pseudo.trim();
   if (trimmed.length === 0) return "Le pseudo est obligatoire.";
-  if (trimmed.length < MIN_LENGTH) return `Le pseudo doit faire au moins ${MIN_LENGTH} caractères.`;
-  if (trimmed.length > MAX_LENGTH) return `Le pseudo doit faire au plus ${MAX_LENGTH} caractères.`;
+  if (trimmed.length < MIN_LENGTH)
+    return `Le pseudo doit faire au moins ${MIN_LENGTH} caractères.`;
+  if (trimmed.length > MAX_LENGTH)
+    return `Le pseudo doit faire au plus ${MAX_LENGTH} caractères.`;
   return null;
 }
 
-export default function StartScreen({ onStart }: StartScreenProps) {
+export default function StartScreen({
+  onStart,
+  themes = [],
+  pending = false,
+  formError = null,
+}: StartScreenProps) {
   // Champ contrôlé : la valeur de l'input vit dans le state React,
   // pas dans le DOM (c'est ce qui définit un "input contrôlé").
   const [pseudo, setPseudo] = useState("");
+  // "" = tous les thèmes. Sinon, l'id de la Category choisie.
+  const [themeId, setThemeId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     // Empêche le comportement par défaut du navigateur (rechargement
     // de la page à la soumission d'un <form>).
     event.preventDefault();
+    // Le tirage des 5 lieux est en cours : on ignore un second envoi.
+    if (pending) return;
 
     const validationError = validatePseudo(pseudo);
     if (validationError) {
@@ -44,7 +63,7 @@ export default function StartScreen({ onStart }: StartScreenProps) {
     }
 
     setError(null);
-    onStart(pseudo.trim());
+    onStart(pseudo.trim(), themeId === "" ? null : Number(themeId));
   };
 
   return (
@@ -53,7 +72,8 @@ export default function StartScreen({ onStart }: StartScreenProps) {
         <p className="start-eyebrow">Jeu de géographie</p>
         <h1 className="start-title">GetClose</h1>
         <p className="start-tagline">
-          Une photo, une carte, cinq manches. Devine où tu es, le plus près possible.
+          Une photo, une carte, cinq manches. Devine où tu es, le plus près
+          possible.
         </p>
 
         <form className="start-form" onSubmit={handleSubmit} noValidate>
@@ -69,6 +89,7 @@ export default function StartScreen({ onStart }: StartScreenProps) {
             placeholder="ex : Zouzou"
             aria-invalid={error !== null}
             aria-describedby={error ? "pseudo-error" : undefined}
+            disabled={pending}
           />
           {error && (
             <p id="pseudo-error" className="start-error">
@@ -76,8 +97,36 @@ export default function StartScreen({ onStart }: StartScreenProps) {
             </p>
           )}
 
-          <button className="start-button" type="submit">
-            Jouer
+          {/* Pas de thèmes : le backend est injoignable, on cache le select. */}
+          {themes.length > 0 && (
+            <>
+              <label className="start-label" htmlFor="theme">
+                Thème
+              </label>
+              <select
+                id="theme"
+                className="start-input"
+                value={themeId}
+                onChange={(event) => setThemeId(event.target.value)}
+                disabled={pending}
+              >
+                <option value="">Tous les thèmes</option>
+                {themes.map((theme) => (
+                  <option key={theme.id} value={theme.id}>
+                    {theme.name}
+                  </option>
+                ))}
+              </select>
+              <p className="start-hint">
+                5 lieux tirés au hasard pour cette partie.
+              </p>
+            </>
+          )}
+
+          {formError && <p className="start-error">{formError}</p>}
+
+          <button className="start-button" type="submit" disabled={pending}>
+            {pending ? "Préparation…" : "Jouer"}
           </button>
         </form>
       </div>
