@@ -2,7 +2,8 @@
 
 Backend FastAPI du jeu de géographie **GetClose** (groupe de 4).
 
-PostgreSQL, JWT, 8 ressources CRUD, scoring Haversine, badges et géocodage Nominatim.
+JWT, 8 ressources CRUD, scoring Haversine, badges et géocodage Nominatim.  
+Base par défaut : **SQLite** (pas besoin de Docker). PostgreSQL reste optionnel.
 
 ## Installation
 
