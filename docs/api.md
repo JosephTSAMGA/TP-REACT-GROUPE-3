@@ -1,101 +1,59 @@
-# Contrat API
+# Contrat API GetClose
 
-Source machine : [openapi.yaml](./openapi.yaml).  
-Toute évolution du JSON passe par une PR qui met à jour ce contrat **avant** le code.
+Préfixe `/api`. Spec interactive : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-Préfixe : `/api`.  
-Timer : **côté UI uniquement** (le serveur n’expire pas les manches en Phase 1–3).
+Auth JWT : en-tête `Authorization: Bearer <token>`.  
+Routes **publiques** : `/health`, `/api/auth/*`, `GET /api/categories`, `GET /api/locations`, `GET /api/badges`.  
+Le reste exige un token (401 sinon). Accès à la ressource d’un autre user → 403.
 
-## Décisions figées
+## Auth
 
-| Question | Décision |
+| Méthode | URL | Body | Réponse |
+|---|---|---|---|
+| POST | `/api/auth/register` | `{ pseudo, email, password }` | 201 User |
+| POST | `/api/auth/login` | `{ email, password }` | `{ access_token, user }` |
+
+Pseudo 2–20 caractères, mot de passe ≥ 8. Email déjà pris → 409.
+
+## Users
+
+CRUD via `/api/users` (`GET` liste / `{id}` / `me`, `PATCH /me`, `DELETE /me`). Création = register.
+
+## Parties et jeu
+
+`POST /api/sessions` crée une partie de 5 manches (lieux tirés au hasard).  
+Les rounds **ne contiennent pas** `latitude` / `longitude` ni le nom du lieu.
+
+`POST /api/guesses` `{ round_id, latitude, longitude }` → `distance_km`, `score`, `actual_location`.  
+Guess déjà soumis → 409. Round inconnu → 404. Lat hors [-90, 90] → 422.
+
+CRUD complet aussi sur `/api/sessions`, `/api/rounds`, `/api/guesses`.
+
+## Catalogue
+
+CRUD `/api/categories` et `/api/locations`. Écritures protégées.  
+Un lieu appartient toujours à une catégorie. Suppression d’une catégorie encore peuplée → 409.
+
+## Badges
+
+CRUD `/api/badges`.  
+`POST /api/badges/evaluate` (et `POST /api/user-badges`) applique les règles métier et peut appeler Nominatim.
+
+## Scoring
+
+```
+distance_km = Haversine, 1 décimale
+score = max(0, round(5000 * exp(-distance_km / 2000)))
+```
+
+Paris vs Paris → 0 km, score 5000.
+
+## Erreurs HTTP
+
+| Cas | Code |
 |---|---|
-| Préfixe | `/api` |
-| `locationId` dans `GET /round` | Oui (string), **sans** lat/lng |
-| Lat/lng avant guess | Interdit |
-| Lat/lng après guess | Oui, dans `actualLocation` (pour afficher le point réel) |
-| Round inconnu | `404` |
-| Body invalide | `422` |
-| Guess déjà soumis | `409` |
-| 5 manches | Le frontend appelle `GET /api/round` 5 fois |
-| Photos | Fichiers backend, URL `/static/locations/<fichier>.jpg` |
-| Carte | Hors API : Leaflet + OSM côté React |
-
-## `GET /api/round`
-
-Crée une manche et renvoie l’image à localiser. Les coordonnées réelles restent côté serveur.
-
-Réponse `200` :
-
-```json
-{
-  "roundId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "imageUrl": "http://127.0.0.1:8000/static/locations/paris.jpg",
-  "locationId": "1"
-}
-```
-
-Champs **absents** : `latitude`, `longitude`, nom de ville.
-
-`imageUrl` est l’URL d’un fichier servi par **ce** backend (`/static/locations/...`). Même forme JSON qu’avant : c’est toujours une URI. En local : `http://127.0.0.1:8000/static/locations/<fichier>.jpg`.
-
-Fichiers physiques : `backend/app/data/images/`. Montage statique : Personne 3. Contenu : Personne 4.
-
-## `POST /api/round/{roundId}/guess`
-
-Body :
-
-```json
-{
-  "latitude": 43.6045,
-  "longitude": 1.444
-}
-```
-
-Contraintes : `latitude` ∈ [-90, 90], `longitude` ∈ [-180, 180].
-
-Réponse `200` :
-
-```json
-{
-  "distanceKm": 12.4,
-  "score": 4969,
-  "actualLocation": {
-    "locationId": "1",
-    "latitude": 48.8566,
-    "longitude": 2.3522
-  }
-}
-```
-
-`actualLocation` n’existe **qu’après** un guess valide. Il permet à la carte d’afficher le point réel.
-
-## Erreurs
-
-| Cas | Statut | Corps |
-|---|---|---|
-| `roundId` inconnu | `404` | `{ "detail": "Round not found" }` |
-| Guess déjà soumis pour ce round | `409` | `{ "detail": "Guess already submitted" }` |
-| Body manquant / types invalides / lat hors bornes | `422` | erreur de validation FastAPI |
-
-## Scoring (spécification pour P3 / tests P5)
-
-- Distance : Haversine, en kilomètres, arrondie à **1 décimale**.
-- Score entier, plage **0–5000** :
-
-```
-score = max(0, round(5000 * exp(-distanceKm / 2000)))
-```
-
-Exemples attendus par les tests unitaires :
-
-- distance `0` → score `5000`
-- Paris vs Paris → distance `0`
-- une grande distance produit un score **strictement inférieur** à une petite distance
-
-## État serveur
-
-- Un `roundId` est un UUID.
-- Le process FastAPI garde en mémoire `roundId → { locationId, latitude, longitude, guessed }`.
-- Redémarrage du serveur → les rounds en cours deviennent `404`. Acceptable pour le MVP.
-- Pas d’endpoint `POST /games` en Phase 1–3.
+| Non authentifié | 401 |
+| Pas propriétaire | 403 |
+| Introuvable | 404 |
+| Conflit (doublon, guess déjà fait) | 409 |
+| Body / validation | 422 |

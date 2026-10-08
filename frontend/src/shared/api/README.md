@@ -1,9 +1,6 @@
-# Client API partagé
+# Client API
 
-Types + mocks + `getRound` / `postGuess`.
+`registerUser` / `loginUser` (JWT), `createSession`, `postGuess`, `listSessions`.
 
-Les mocks sont actifs tant que `VITE_USE_MOCKS` n’est pas `false` (voir `.env.example`).
-Les coordonnées réelles n’existent que dans `GuessResponse.actualLocation`.
-
-`imageUrl` pointe vers le backend : `http://127.0.0.1:8000/static/locations/<fichier>.jpg`.
-Le contrat JSON ne change pas.
+Le token est stocké dans `localStorage` (`getclose_token`).
+Les manches renvoyées par `GET/POST /api/sessions` n’incluent **pas** les coordonnées du lieu.

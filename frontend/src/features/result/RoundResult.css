@@ -1,0 +1,72 @@
+.round-result {
+  min-height: 100vh;
+  background: #0f1b2d;
+  color: #f2efe6;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.round-result-card {
+  background: #16273d;
+  border: 1px solid #22364f;
+  border-radius: 14px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.round-result-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.4rem;
+}
+
+.round-result-distance {
+  color: #8fa3bd;
+  margin: 0 0 0.5rem;
+}
+
+.round-result-guess-place {
+  min-height: 1.4em;
+  color: #8fa3bd;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.round-result-points {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e8b347;
+  margin: 0;
+}
+
+.round-result-cumulative {
+  color: #8fa3bd;
+  margin: 0.25rem 0 1.5rem;
+}
+
+.round-result-button {
+  width: 100%;
+  background: #e8b347;
+  color: #16273d;
+  border: none;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  .round-result-card {
+    padding: 1.5rem;
+  }
+
+  .round-result-points {
+    font-size: 1.6rem;
+  }
+}

@@ -1,90 +1,75 @@
-# Architecture — TP React Groupe 3
+# Architecture — GetClose
 
-Décisions de **Phase 0**. Ce document est la référence du groupe. Les features de jeu ne sont pas implémentées ici.
+Monorepo `frontend/` (Vite + React + TypeScript) + `backend/` (FastAPI).
 
-## Combo retenu
+## Décisions
 
-| Sujet | Choix | Écarté |
-|---|---|---|
-| Dépôt | Monorepo `frontend/` + `backend/` + `docs/` | Deux repos |
-| Frontend | Features `game` / `map` / `result` | Feature-Sliced Design, Redux |
-| Backend | FastAPI plat (routers + services) | Architecture hexagonale |
-| État de partie | API **stateless** (un round isolé) ; 5 manches côté React | Session serveur dès le MVP |
-| Intégration | Contrat OpenAPI figé + mocks | Coder sans contrat |
-| Carte | Leaflet + OpenStreetMap via react-leaflet | Carte maison, Google Maps, Mapbox |
-| Photos | Fichiers dans `backend/app/data/images/` | Street View, API externe, `frontend/public` |
+| Sujet | Choix |
+|---|---|
+| Front | React, React Router, Leaflet / OSM |
+| Back | FastAPI, SQLAlchemy, Pydantic v2 |
+| Auth | JWT (`/api/auth/register`, `/api/auth/login`) |
+| Base | SQLite par défaut ; PostgreSQL optionnel (`docker compose`) |
+| État de partie | Persisté en base (`GameSession` + `Round` + `Guess`) |
+| Score | Haversine **côté serveur** |
+| API tierce | Nominatim (reverse geocoding), appelée par FastAPI pour les badges et par le front pour l’écran résultat |
+| Photos | URLs Wikimedia dans `locations.image_url` (seed `app/seed.py`) |
 
-## Contraintes respectées
-
-- Personne 1 (UI jeu) et personne 2 (carte) avancent avec des **mocks**, sans attendre le backend.
-- Personne 3 (FastAPI) et personne 4 (données) avancent **sans le frontend**.
-- Personne 5 écrit des tests dès que le contrat JSON est figé.
-- Flux MVP : `START → ROUND → GUESS → RESULT → NEXT ROUND` (puis 5 manches).
-- La carte n’est **pas** dessinée : Leaflet + tuiles OSM. Les photos sont des fichiers backend.
-
-Papier opérationnel pour le groupe : [CONSIGNES.md](./CONSIGNES.md).
-
-```mermaid
-flowchart LR
-  Photo[Image_statique] --> ReactUI[React_TS]
-  ReactUI -->|"clic Leaflet lat lng"| Guess[POST_guess]
-  Guess --> FastAPI[FastAPI]
-  FastAPI --> Locations[locations_json]
-  FastAPI --> Images[data_images]
-  ReactUI -.->|"mocks Phase 1"| MockAPI[JSON_mock]
-```
-
-## Organisation du dépôt
-
-```
-TP-REACT-GROUPE-3/
-  frontend/          # Vite + React + TypeScript
-  backend/           # FastAPI
-  docs/              # contrat API + architecture
-  .github/workflows/ # CI
-```
-
-Un seul GitHub : un clone, des PRs visibles par tout le monde, un contrat unique.
-
-## Frontend — par fonctionnalités
+## Frontend
 
 ```
 frontend/src/
-  app/               # router, layout, providers
+  app/                 # routes, NavBar
   features/
-    game/            # écran manche, timer, score, transitions  → Personne 1
-    map/             # Leaflet + OSM, marker, lat/lng          → Personne 2
-    result/          # distance + score après guess
-  shared/            # client API, types, UI générique, mocks
+    game/              # StartScreen, GamePage, RoundScreen
+    map/               # InteractiveMap (Leaflet)
+    result/            # RoundResult
+    history/           # FinishedScreen, HistoryScreen
+  shared/
+    api/               # client JWT (sessions, guesses)
+    types.ts
 ```
 
-État de partie (MVP) : `useState` / Context dans `features/game`. Pas de Redux.
+Le front n’orchestre plus 5 manches « dans le vide » : `POST /api/sessions` crée la partie, `POST /api/guesses` enregistre le clic.
 
-Les 5 rounds, le score total et le « play again » vivent **côté React**. L’API ne connaît qu’une manche à la fois.
-
-## Backend — routers + services
+## Backend
 
 ```
-backend/
-  app/main.py
-  app/routers/rounds.py
-  app/services/scoring.py      # distance + score → Personne 3
-  app/services/game.py         # création de round
-  app/data/locations.json      # métadonnées → Personne 4
-  app/data/images/             # jpg servies en /static/locations/ → P4 + P3
-  tests/
+backend/app/
+  main.py
+  database.py
+  core/                # config, JWT, get_current_user
+  models/              # 8 tables
+  schemas/             # Pydantic
+  routers/             # HTTP léger
+  services/            # scoring, catalogue, badges, geocoding
+  seed.py
 ```
 
-Le serveur mémorise uniquement `roundId → coordonnées réelles` le temps du guess (mémoire process). Il ne stocke pas de partie (`game`) ni de score total.
+Séparation : routers → services → models. Les routes restent minces.
 
-Les images ne quittent pas le backend : FastAPI les sert via `/static/locations/<fichier>.jpg`. Le champ `imageUrl` du contrat pointe vers cette URL. Pas d’images dans `frontend/public`.
+### 8 ressources CRUD
+
+User, GameSession, Category, Location, Round, Guess, Badge, UserBadge.
+
+### Relations
+
+- User 1–N GameSession
+- GameSession 1–N Round
+- Round 1–1 Guess
+- Category 1–N Location
+- Location 1–N Round
+- User N–N Badge via UserBadge
+
+### Fonctionnalités avancées
+
+1. Tirage d’une partie (`POST /api/sessions` : 5 lieux distincts).
+2. Scoring Haversine + mise à jour du score de session.
+3. Évaluation des badges (règles métier + Nominatim).
 
 ## Contrat API
 
-Source de vérité : [openapi.yaml](./openapi.yaml) (lisible : [api.md](./api.md)).
+Source de vérité **live** : Swagger [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).  
+Résumé : [api.md](./api.md).
 
 Règle d’or : **ne jamais renvoyer latitude / longitude avant le guess**.
-
-## Branches
-
-Voir [CONTRIBUTING.md](../CONTRIBUTING.md).

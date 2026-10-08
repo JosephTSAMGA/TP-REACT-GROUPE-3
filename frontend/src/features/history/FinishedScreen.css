@@ -1,0 +1,73 @@
+.finished-screen {
+  min-height: 100vh;
+  background: #0f1b2d;
+  color: #f2efe6;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.finished-card {
+  background: #16273d;
+  border: 1px solid #22364f;
+  border-radius: 14px;
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.finished-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: #8fa3bd;
+  margin: 0 0 0.5rem;
+}
+
+.finished-score {
+  font-size: 3rem;
+  margin: 0 0 0.75rem;
+  color: #e8b347;
+}
+
+.finished-best {
+  color: #8fa3bd;
+  margin: 0 0 0.25rem;
+}
+
+.finished-best--new {
+  color: #e8b347;
+  font-weight: 600;
+}
+
+.finished-history-count {
+  color: #8fa3bd;
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem;
+}
+
+.finished-button {
+  width: 100%;
+  background: #e8b347;
+  color: #16273d;
+  border: none;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  .finished-card {
+    padding: 1.75rem;
+  }
+
+  .finished-score {
+    font-size: 2.2rem;
+  }
+}
